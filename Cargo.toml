@@ -1,0 +1,9 @@
+[package]
+name = "ionized_earth_rpg"
+version = "0.1.0"
+authors = ["selfup <boudinot.regis@yahoo.com>"]
+edition = "2018"
+
+[dependencies]
+bevy = "0.4.0"
+rand = "0.8.1"
