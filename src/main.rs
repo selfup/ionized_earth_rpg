@@ -11,9 +11,9 @@ const MAIN_SCENE_END_SIZE: i32 = 20;
 const MAIN_CAMERA_SCALE: f32 = 0.2;
 
 const PLAYER_IDLE: &str = "player-idle-sheet.png";
-const GRASS_001: &str = "world/grass-001.png";
-const GRASS_002: &str = "world/grass-002.png";
-const BUILDING_BLOCK_001: &str = "world/building-block-001.png";
+const GRASS_001: &str = "grass-001.png";
+const GRASS_002: &str = "grass-002.png";
+const BUILDING_BLOCK_001: &str = "building-block-001.png";
 
 fn main() {
     App::build()
@@ -112,9 +112,14 @@ fn player_setup(
 fn animate_sprite_system(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &Handle<TextureAtlas>)>,
+    mut query: Query<(
+        &mut Timer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+        &Player,
+    )>,
 ) {
-    for (mut timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
+    for (mut timer, mut sprite, texture_atlas_handle, _player) in query.iter_mut() {
         timer.tick(time.delta_seconds_f64() as f32);
 
         if timer.finished() {
