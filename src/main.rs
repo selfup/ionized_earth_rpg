@@ -10,10 +10,12 @@ const MAIN_SCENE_START_SIZE: i32 = -20;
 const MAIN_SCENE_END_SIZE: i32 = 20;
 const MAIN_CAMERA_SCALE: f32 = 0.2;
 
-const PLAYER_IDLE: &str = "player-idle-sheet.png";
 const GRASS_001: &str = "grass-001.png";
 const GRASS_002: &str = "grass-002.png";
 const BUILDING_BLOCK_001: &str = "building-block-001.png";
+
+const PLAYER_IDLE: &str = "player-idle-sheet.png";
+const PLAYER_MOVE_LEFT: &str = "player-move-left.png";
 
 fn main() {
     App::build()
@@ -83,14 +85,75 @@ fn setup(
     }
 }
 
+struct PlayerAtlases {
+    idle_texture_atlas: Handle<Texture>,
+    left_texture_atlas: Handle<Texture>,
+    right_texture_atlas: Handle<Texture>,
+    up_texture_atlas: Handle<Texture>,
+    down_texture_atlas: Handle<Texture>,
+}
+
+impl PlayerAtlases {
+    fn new(asset_server: &Res<AssetServer>) -> Self {
+        let texture_handle_idle: Handle<Texture> = asset_server.load(PLAYER_IDLE);
+        let texture_handle_move_left: Handle<Texture> = asset_server.load(PLAYER_MOVE_LEFT);
+        let texture_handle_move_right: Handle<Texture> = asset_server.load(PLAYER_IDLE);
+        let texture_handle_move_up: Handle<Texture> = asset_server.load(PLAYER_IDLE);
+        let texture_handle_move_down: Handle<Texture> = asset_server.load(PLAYER_IDLE);
+
+        Self {
+            idle_texture_atlas: texture_handle_idle,
+            left_texture_atlas: texture_handle_move_left,
+            right_texture_atlas: texture_handle_move_right,
+            up_texture_atlas: texture_handle_move_up,
+            down_texture_atlas: texture_handle_move_down,
+        }
+    }
+}
+
 fn player_setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = asset_server.load(PLAYER_IDLE);
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 5, 1);
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+    let player_atlases = PlayerAtlases::new(&asset_server);
+
+    let texture_atlas_idle = TextureAtlas::from_grid(
+        player_atlases.idle_texture_atlas,
+        Vec2::new(16.0, 16.0),
+        5,
+        1,
+    );
+
+    let texture_atlas_left = TextureAtlas::from_grid(
+        player_atlases.left_texture_atlas,
+        Vec2::new(16.0, 16.0),
+        5,
+        1,
+    );
+
+    let texture_atlas_right = TextureAtlas::from_grid(
+        player_atlases.right_texture_atlas,
+        Vec2::new(16.0, 16.0),
+        5,
+        1,
+    );
+
+    let texture_atlas_up =
+        TextureAtlas::from_grid(player_atlases.up_texture_atlas, Vec2::new(16.0, 16.0), 5, 1);
+
+    let texture_atlas_down = TextureAtlas::from_grid(
+        player_atlases.down_texture_atlas,
+        Vec2::new(16.0, 16.0),
+        5,
+        1,
+    );
+
+    texture_atlases.add(texture_atlas_left);
+    texture_atlases.add(texture_atlas_right);
+    texture_atlases.add(texture_atlas_up);
+    texture_atlases.add(texture_atlas_down);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas_idle);
 
     let player = Player {
         x: 0.0,
@@ -132,11 +195,15 @@ fn animate_sprite_system(
 fn player_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &mut Player)>,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut query: Query<(&mut Transform, &mut Handle<TextureAtlas>, &mut Player)>,
 ) {
+    let texture_handle_move_left: Handle<Texture> = asset_server.load(PLAYER_MOVE_LEFT);
+
     let input_dir = get_input_dir(keyboard_input);
 
-    for (mut transform, mut player) in query.iter_mut() {
+    for (mut transform, mut handle_texture_atlas, mut player) in query.iter_mut() {
         let input_dir = (transform.rotation * input_dir).normalize();
 
         let velocity = 50.0;
@@ -145,6 +212,19 @@ fn player_movement(
 
         if x_dir == -1.0 {
             player.x -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
+
+            let texture_atlas = TextureAtlas::from_grid(
+                texture_handle_move_left.clone(),
+                Vec2::new(16.0, 16.0),
+                5,
+                1,
+            );
+
+            texture_atlases.clear();
+
+            let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+            *handle_texture_atlas = texture_atlas_handle;
         }
 
         if x_dir == 1.0 {
