@@ -1,7 +1,7 @@
 extern crate rand;
 use rand::Rng;
 
-use bevy::prelude::*;
+use bevy::{input, prelude::*};
 
 const BLOCK_SIZE: i32 = 16;
 
@@ -204,11 +204,16 @@ fn player_movement(
     let input_dir = get_input_dir(keyboard_input);
 
     for (mut transform, _handle_texture_atlas, mut player) in query.iter_mut() {
-        let input_dir = (transform.rotation * input_dir).normalize();
+        let normalized_input_dir = (transform.rotation * input_dir.0).normalize();
 
-        let velocity = 25.0;
-        let x_dir = input_dir[0];
-        let y_dir = input_dir[1];
+        let mut velocity = 25.0;
+
+        let x_dir = normalized_input_dir[0];
+        let y_dir = normalized_input_dir[1];
+
+        if input_dir.1 == "run" {
+            velocity = 50.0;
+        }
 
         if x_dir == -1.0 {
             player.x -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
@@ -288,51 +293,48 @@ fn camera_movement(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &mut CameraMatcher)>,
 ) {
-    let input_dir = get_input_dir(keyboard_input);
+    let mut velocity = 25.0;
+    let got_input_dir = get_input_dir(keyboard_input);
+    let input_dir = got_input_dir.0;
+
+    if got_input_dir.1 == "run" {
+        velocity = 50.0;
+    }
 
     if input_dir.length() > 0. {
         for (mut transform, _camera) in query.iter_mut() {
             let input_dir = (transform.rotation * input_dir).normalize();
 
-            transform.translation += input_dir * (time.delta_seconds_f64() * 25.0) as f32;
+            transform.translation += input_dir * (time.delta_seconds_f64() * velocity) as f32;
         }
     }
 }
 
-fn get_input_dir(keyboard_input: Res<Input<KeyCode>>) -> Vec3 {
+fn get_input_dir(keyboard_input: Res<Input<KeyCode>>) -> (Vec3, &'static str) {
+    let mut modifier = "";
     let mut input_dir = Vec3::default();
 
     if keyboard_input.pressed(KeyCode::W) {
         let up = Vec3::unit_y();
 
         input_dir += up;
-
-        return input_dir;
-    }
-
-    if keyboard_input.pressed(KeyCode::A) {
+    } else if keyboard_input.pressed(KeyCode::A) {
         let left = Vec3::unit_x();
 
         input_dir -= left;
-
-        return input_dir;
-    }
-
-    if keyboard_input.pressed(KeyCode::S) {
+    } else if keyboard_input.pressed(KeyCode::S) {
         let down = Vec3::unit_y();
 
         input_dir -= down;
-
-        return input_dir;
-    }
-
-    if keyboard_input.pressed(KeyCode::D) {
+    } else if keyboard_input.pressed(KeyCode::D) {
         let right = Vec3::unit_x();
 
         input_dir += right;
-
-        return input_dir;
     }
 
-    input_dir
+    if keyboard_input.pressed(KeyCode::LShift) {
+        modifier = "run";
+    }
+
+    (input_dir, modifier)
 }
