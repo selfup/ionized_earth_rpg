@@ -14,8 +14,7 @@ const GRASS_001: &str = "grass-001.png";
 const GRASS_002: &str = "grass-002.png";
 const BUILDING_BLOCK_001: &str = "building-block-001.png";
 
-const PLAYER_IDLE: &str = "player-idle-sheet.png";
-const PLAYER_MOVE_LEFT: &str = "player-move-left.png";
+const PLAYER_SPRITE_SHEET: &str = "player.png";
 
 fn main() {
     App::build()
@@ -38,6 +37,39 @@ struct Player {
     x: f32,
     y: f32,
     z: f32,
+
+    idle: bool,
+
+    left: bool,
+    right: bool,
+    up: bool,
+    down: bool,
+
+    animation_index: u32,
+}
+
+impl Player {
+    fn new() -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            z: 1.0,
+            idle: true,
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+            animation_index: 0,
+        }
+    }
+
+    fn set_all_to_false(&mut self) {
+        self.idle = false;
+        self.left = false;
+        self.right = false;
+        self.up = false;
+        self.down = false;
+    }
 }
 
 fn setup(
@@ -85,81 +117,16 @@ fn setup(
     }
 }
 
-struct PlayerAtlases {
-    idle_texture_atlas: Handle<Texture>,
-    left_texture_atlas: Handle<Texture>,
-    right_texture_atlas: Handle<Texture>,
-    up_texture_atlas: Handle<Texture>,
-    down_texture_atlas: Handle<Texture>,
-}
-
-impl PlayerAtlases {
-    fn new(asset_server: &Res<AssetServer>) -> Self {
-        let texture_handle_idle: Handle<Texture> = asset_server.load(PLAYER_IDLE);
-        let texture_handle_move_left: Handle<Texture> = asset_server.load(PLAYER_MOVE_LEFT);
-        let texture_handle_move_right: Handle<Texture> = asset_server.load(PLAYER_IDLE);
-        let texture_handle_move_up: Handle<Texture> = asset_server.load(PLAYER_IDLE);
-        let texture_handle_move_down: Handle<Texture> = asset_server.load(PLAYER_IDLE);
-
-        Self {
-            idle_texture_atlas: texture_handle_idle,
-            left_texture_atlas: texture_handle_move_left,
-            right_texture_atlas: texture_handle_move_right,
-            up_texture_atlas: texture_handle_move_up,
-            down_texture_atlas: texture_handle_move_down,
-        }
-    }
-}
-
 fn player_setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let player_atlases = PlayerAtlases::new(&asset_server);
+    let texture_handle = asset_server.load(PLAYER_SPRITE_SHEET);
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 5, 5);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-    let texture_atlas_idle = TextureAtlas::from_grid(
-        player_atlases.idle_texture_atlas,
-        Vec2::new(16.0, 16.0),
-        5,
-        1,
-    );
-
-    let texture_atlas_left = TextureAtlas::from_grid(
-        player_atlases.left_texture_atlas,
-        Vec2::new(16.0, 16.0),
-        5,
-        1,
-    );
-
-    let texture_atlas_right = TextureAtlas::from_grid(
-        player_atlases.right_texture_atlas,
-        Vec2::new(16.0, 16.0),
-        5,
-        1,
-    );
-
-    let texture_atlas_up =
-        TextureAtlas::from_grid(player_atlases.up_texture_atlas, Vec2::new(16.0, 16.0), 5, 1);
-
-    let texture_atlas_down = TextureAtlas::from_grid(
-        player_atlases.down_texture_atlas,
-        Vec2::new(16.0, 16.0),
-        5,
-        1,
-    );
-
-    texture_atlases.add(texture_atlas_left);
-    texture_atlases.add(texture_atlas_right);
-    texture_atlases.add(texture_atlas_up);
-    texture_atlases.add(texture_atlas_down);
-    let texture_atlas_handle = texture_atlases.add(texture_atlas_idle);
-
-    let player = Player {
-        x: 0.0,
-        y: 0.0,
-        z: 1.0,
-    };
+    let player = Player::new();
 
     commands
         .spawn(Camera2dBundle::default())
@@ -174,69 +141,101 @@ fn player_setup(
 
 fn animate_sprite_system(
     time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut Timer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
-        &Player,
-    )>,
+    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
 ) {
-    for (mut timer, mut sprite, texture_atlas_handle, _player) in query.iter_mut() {
+    for (mut timer, mut sprite, mut player) in query.iter_mut() {
+        // const ANIMATION_LEN: u32 = 5;
+
         timer.tick(time.delta_seconds_f64() as f32);
 
+        /*
+            [
+                0,1,2,3,4, <- idle
+                5,6,7,8,9, <- left
+                10,11,12,13,14, <- right
+                15,16,17,18,19 <- up
+                20,21,22,23,24, <- down
+            ]
+        */
+
+        if player.idle {
+            if player.animation_index < 4 {
+                player.animation_index += 1;
+            } else {
+                player.animation_index = 0;
+            }
+        } else if player.left {
+            if player.animation_index < 9 {
+                player.animation_index += 1;
+            } else {
+                player.animation_index = 5;
+            }
+        } else if player.right {
+            if player.animation_index < 14 {
+                player.animation_index += 1;
+            } else {
+                player.animation_index = 10;
+            }
+        } else if player.up {
+            if player.animation_index < 19 {
+                player.animation_index += 1;
+            } else {
+                player.animation_index = 15;
+            }
+        } else if player.down {
+            if player.animation_index < 24 {
+                player.animation_index += 1;
+            } else {
+                player.animation_index = 20;
+            }
+        }
+
         if timer.finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-            sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
+            sprite.index = player.animation_index;
         }
     }
+}
+
+fn map_row_col(rows: u32, row: u32, col: u32) -> u32 {
+    (rows * (row - 1)) + col
 }
 
 fn player_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut query: Query<(&mut Transform, &mut Handle<TextureAtlas>, &mut Player)>,
+    mut query: Query<(&mut Transform, &Handle<TextureAtlas>, &mut Player)>,
 ) {
-    let texture_handle_move_left: Handle<Texture> = asset_server.load(PLAYER_MOVE_LEFT);
-
     let input_dir = get_input_dir(keyboard_input);
 
-    for (mut transform, mut handle_texture_atlas, mut player) in query.iter_mut() {
+    for (mut transform, _handle_texture_atlas, mut player) in query.iter_mut() {
         let input_dir = (transform.rotation * input_dir).normalize();
 
-        let velocity = 50.0;
+        let velocity = 25.0;
         let x_dir = input_dir[0];
         let y_dir = input_dir[1];
 
         if x_dir == -1.0 {
             player.x -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
-
-            let texture_atlas = TextureAtlas::from_grid(
-                texture_handle_move_left.clone(),
-                Vec2::new(16.0, 16.0),
-                5,
-                1,
-            );
-
-            texture_atlases.clear();
-
-            let texture_atlas_handle = texture_atlases.add(texture_atlas);
-
-            *handle_texture_atlas = texture_atlas_handle;
+            player.set_all_to_false();
+            player.left = true;
         }
 
         if x_dir == 1.0 {
             player.x += (1.0 * time.delta_seconds_f64() * velocity) as f32;
+            player.set_all_to_false();
+            player.right = true;
         }
 
         if y_dir == -1.0 {
             player.y -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
+            player.set_all_to_false();
+            player.down = true;
         }
 
         if y_dir == 1.0 {
             player.y += (1.0 * time.delta_seconds_f64() * velocity) as f32;
+            player.set_all_to_false();
+            player.up = true;
         }
 
         transform.translation = Vec3::new(player.x, player.y, player.z);
@@ -302,7 +301,7 @@ fn camera_movement(
         for (mut transform, _camera) in query.iter_mut() {
             let input_dir = (transform.rotation * input_dir).normalize();
 
-            transform.translation += input_dir * (time.delta_seconds_f64() * 50.0) as f32;
+            transform.translation += input_dir * (time.delta_seconds_f64() * 25.0) as f32;
         }
     }
 }
