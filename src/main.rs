@@ -196,10 +196,6 @@ fn animate_sprite_system(
     }
 }
 
-fn map_row_col(rows: u32, row: u32, col: u32) -> u32 {
-    (rows * (row - 1)) + col
-}
-
 fn player_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
@@ -218,24 +214,21 @@ fn player_movement(
             player.x -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
             player.set_all_to_false();
             player.left = true;
-        }
-
-        if x_dir == 1.0 {
+        } else if x_dir == 1.0 {
             player.x += (1.0 * time.delta_seconds_f64() * velocity) as f32;
             player.set_all_to_false();
             player.right = true;
-        }
-
-        if y_dir == -1.0 {
+        } else if y_dir == -1.0 {
             player.y -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
             player.set_all_to_false();
             player.down = true;
-        }
-
-        if y_dir == 1.0 {
+        } else if y_dir == 1.0 {
             player.y += (1.0 * time.delta_seconds_f64() * velocity) as f32;
             player.set_all_to_false();
             player.up = true;
+        } else {
+            player.set_all_to_false();
+            player.idle = true;
         }
 
         transform.translation = Vec3::new(player.x, player.y, player.z);
