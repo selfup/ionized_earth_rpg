@@ -144,8 +144,6 @@ fn animate_sprite_system(
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
 ) {
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
-        // const ANIMATION_LEN: u32 = 5;
-
         timer.tick(time.delta_seconds_f64() as f32);
 
         /*
