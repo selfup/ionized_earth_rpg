@@ -1,7 +1,7 @@
 extern crate rand;
 use rand::Rng;
 
-use bevy::{input, prelude::*};
+use bevy::prelude::*;
 
 const BLOCK_SIZE: i32 = 16;
 
@@ -54,11 +54,13 @@ impl Player {
             x: 0.0,
             y: 0.0,
             z: 1.0,
+
             idle: true,
             left: false,
             right: false,
             up: false,
             down: false,
+
             animation_index: 0,
         }
     }
