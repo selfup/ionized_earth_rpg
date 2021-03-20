@@ -1,27 +1,32 @@
+use bevy::{app::startup_stage, prelude::*};
+
 extern crate rand;
 use rand::Rng;
 
-use bevy::{app::startup_stage, prelude::*};
+mod entities;
+mod resources;
+mod systems;
 
-const BLOCK_SIZE: i32 = 16;
+use entities::*;
+use resources::*;
+use systems::{init_state, setup};
 
 const BG_COLOR: f32 = 0.04;
-const MAIN_SCENE_START_SIZE: i32 = -6;
-const MAIN_SCENE_END_SIZE: i32 = 4;
+const BLOCK_SIZE: i32 = 16;
+
 const MAIN_CAMERA_SCALE: f32 = 0.2;
+const MAIN_SCENE_END_SIZE: i32 = 4;
+const MAIN_SCENE_START_SIZE: i32 = -6;
 
-const GRASS_001: &str = "grass-001.png";
-const GRASS_002: &str = "grass-002.png";
 const BUILDING_BLOCK_001: &str = "building-block-001.png";
-
 const PLAYER_SPRITE_SHEET: &str = "player.png";
 
 fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
-        .add_startup_system_to_stage(startup_stage::PRE_STARTUP, init_state.system())
+        .add_startup_system_to_stage(startup_stage::PRE_STARTUP, init_state::system.system())
         .add_startup_system(camera_setup.system())
-        .add_system(setup.system())
+        .add_system(setup::system.system())
         .add_startup_system(add_random_building_blocks.system())
         .add_startup_system(player_setup.system())
         .add_system(camera_scale.system())
@@ -34,143 +39,10 @@ fn main() {
 
 struct CameraMatcher();
 
-#[derive(Debug, Clone)]
-struct Store {
-    start: i32,
-    end: i32,
-    grass_001: Handle<Texture>,
-    grass_002: Handle<Texture>,
-    blocks: Vec<(i32, i32, i8)>,
-    updating: bool,
-}
-
-impl Store {
-    fn new(start: i32, end: i32, asset_server: Res<AssetServer>) -> Self {
-        let grass_001: Handle<Texture> = asset_server.load(GRASS_001);
-        let grass_002: Handle<Texture> = asset_server.load(GRASS_002);
-
-        let blocks = create_blocks(start, end);
-
-        Self {
-            start: blocks.1 .0,
-            end: blocks.1 .1,
-            grass_001,
-            grass_002,
-            blocks: blocks.0,
-            updating: true,
-        }
-    }
-
-    fn update_blocks(&mut self, start: i32, end: i32) {
-        self.blocks = create_blocks(self.start, self.end).0;
-
-        self.start = start;
-        self.end = end;
-    }
-}
-
-fn create_blocks(start: i32, end: i32) -> (Vec<(i32, i32, i8)>, (i32, i32)) {
-    let mut blocks: Vec<(i32, i32, i8)> = vec![];
-
-    for x in start..end {
-        let x_buffer = x * BLOCK_SIZE;
-
-        for y in start..end {
-            let y_buffer = y * BLOCK_SIZE;
-
-            let mut range = rand::thread_rng();
-
-            let grass_type = range.gen_range(0..16);
-
-            blocks.push((x_buffer, y_buffer, grass_type));
-        }
-    }
-
-    (blocks, (start, end))
-}
-
-#[derive(Debug, Copy, Clone)]
-struct Player {
-    x: f32,
-    y: f32,
-    z: f32,
-
-    idle: bool,
-
-    left: bool,
-    right: bool,
-    up: bool,
-    down: bool,
-
-    animation_index: u32,
-}
-
-impl Player {
-    fn new() -> Self {
-        Self {
-            x: 0.0,
-            y: 0.0,
-            z: 1.0,
-
-            idle: true,
-            left: false,
-            right: false,
-            up: false,
-            down: false,
-
-            animation_index: 0,
-        }
-    }
-
-    fn set_all_to_false(&mut self) {
-        self.idle = false;
-        self.left = false;
-        self.right = false;
-        self.up = false;
-        self.down = false;
-    }
-}
-
-fn init_state(commands: &mut Commands, asset_server: Res<AssetServer>) {
-    let store = Store::new(MAIN_SCENE_START_SIZE, MAIN_SCENE_END_SIZE, asset_server);
-
-    commands.insert_resource(store);
-}
-
 fn camera_setup(commands: &mut Commands) {
     commands
         .spawn(Camera2dBundle::default())
         .with(CameraMatcher());
-}
-
-fn setup(
-    commands: &mut Commands,
-    mut store: ResMut<Store>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-    if store.updating {
-        for block in &store.blocks {
-            let material: Handle<Texture>;
-
-            if block.2 == 1 {
-                material = store.grass_001.clone();
-            } else {
-                material = store.grass_002.clone();
-            }
-
-            commands.spawn(SpriteBundle {
-                transform: Transform::from_translation(Vec3::new(
-                    block.0 as f32,
-                    block.1 as f32,
-                    0.0,
-                )),
-                material: materials.add(material.into()),
-                ..Default::default()
-            });
-        }
-
-        store.updating = false;
-    }
 }
 
 fn player_setup(
@@ -182,7 +54,7 @@ fn player_setup(
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 5, 5);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-    let player = Player::new();
+    let player = player::Entity::new();
 
     commands
         .spawn(Camera2dBundle::default())
@@ -197,16 +69,14 @@ fn player_setup(
 
 fn animate_sprite_system(
     time: Res<Time>,
-    mut store: ResMut<Store>,
-    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
+    mut store: ResMut<store::Resource>,
+    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut player::Entity)>,
 ) {
     let store_start_pow = store.start.pow(2);
     let store_end_pow = store.end.pow(2);
 
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
         timer.tick(time.delta_seconds_f64() as f32);
-
-        println!("{:?} --- {:?}", player.x, store_start_pow);
 
         if (player.x - 16.0) as i32 == store_start_pow || (player.x + 16.0) as i32 == store_end_pow
         {
@@ -278,7 +148,7 @@ fn animate_sprite_system(
 fn player_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Handle<TextureAtlas>, &mut Player)>,
+    mut query: Query<(&mut Transform, &Handle<TextureAtlas>, &mut player::Entity)>,
 ) {
     let input_dir = get_input_dir(keyboard_input);
 
