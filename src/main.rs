@@ -1,13 +1,13 @@
 extern crate rand;
 use rand::Rng;
 
-use bevy::prelude::*;
+use bevy::{app::startup_stage, prelude::*};
 
 const BLOCK_SIZE: i32 = 16;
 
 const BG_COLOR: f32 = 0.04;
-const MAIN_SCENE_START_SIZE: i32 = -20;
-const MAIN_SCENE_END_SIZE: i32 = 20;
+const MAIN_SCENE_START_SIZE: i32 = -6;
+const MAIN_SCENE_END_SIZE: i32 = 4;
 const MAIN_CAMERA_SCALE: f32 = 0.2;
 
 const GRASS_001: &str = "grass-001.png";
@@ -19,7 +19,9 @@ const PLAYER_SPRITE_SHEET: &str = "player.png";
 fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
-        .add_startup_system(setup.system())
+        .add_startup_system_to_stage(startup_stage::PRE_STARTUP, init_state.system())
+        .add_startup_system(camera_setup.system())
+        .add_system(setup.system())
         .add_startup_system(add_random_building_blocks.system())
         .add_startup_system(player_setup.system())
         .add_system(camera_scale.system())
@@ -31,6 +33,61 @@ fn main() {
 }
 
 struct CameraMatcher();
+
+#[derive(Debug, Clone)]
+struct Store {
+    start: i32,
+    end: i32,
+    grass_001: Handle<Texture>,
+    grass_002: Handle<Texture>,
+    blocks: Vec<(i32, i32, i8)>,
+    updating: bool,
+}
+
+impl Store {
+    fn new(start: i32, end: i32, asset_server: Res<AssetServer>) -> Self {
+        let grass_001: Handle<Texture> = asset_server.load(GRASS_001);
+        let grass_002: Handle<Texture> = asset_server.load(GRASS_002);
+
+        let blocks = create_blocks(start, end);
+
+        Self {
+            start: blocks.1 .0,
+            end: blocks.1 .1,
+            grass_001,
+            grass_002,
+            blocks: blocks.0,
+            updating: true,
+        }
+    }
+
+    fn update_blocks(&mut self, start: i32, end: i32) {
+        self.blocks = create_blocks(self.start, self.end).0;
+
+        self.start = start;
+        self.end = end;
+    }
+}
+
+fn create_blocks(start: i32, end: i32) -> (Vec<(i32, i32, i8)>, (i32, i32)) {
+    let mut blocks: Vec<(i32, i32, i8)> = vec![];
+
+    for x in start..end {
+        let x_buffer = x * BLOCK_SIZE;
+
+        for y in start..end {
+            let y_buffer = y * BLOCK_SIZE;
+
+            let mut range = rand::thread_rng();
+
+            let grass_type = range.gen_range(0..16);
+
+            blocks.push((x_buffer, y_buffer, grass_type));
+        }
+    }
+
+    (blocks, (start, end))
+}
 
 #[derive(Debug, Copy, Clone)]
 struct Player {
@@ -74,48 +131,45 @@ impl Player {
     }
 }
 
-fn setup(
-    commands: &mut Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn init_state(commands: &mut Commands, asset_server: Res<AssetServer>) {
+    let store = Store::new(MAIN_SCENE_START_SIZE, MAIN_SCENE_END_SIZE, asset_server);
+
+    commands.insert_resource(store);
+}
+
+fn camera_setup(commands: &mut Commands) {
     commands
         .spawn(Camera2dBundle::default())
         .with(CameraMatcher());
+}
 
-    let grass001: Handle<Texture> = asset_server.load(GRASS_001);
-    let grass002: Handle<Texture> = asset_server.load(GRASS_002);
+fn setup(
+    commands: &mut Commands,
+    mut store: ResMut<Store>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    if store.updating {
+        for block in &store.blocks {
+            let material: Handle<Texture>;
 
-    let mut blocks: Vec<(i32, i32, i8)> = vec![];
+            if block.2 == 1 {
+                material = store.grass_001.clone();
+            } else {
+                material = store.grass_002.clone();
+            }
 
-    for x in MAIN_SCENE_START_SIZE..MAIN_SCENE_END_SIZE {
-        let x_buffer = x * BLOCK_SIZE;
-
-        for y in MAIN_SCENE_START_SIZE..MAIN_SCENE_END_SIZE {
-            let y_buffer = y * BLOCK_SIZE;
-
-            let mut range = rand::thread_rng();
-
-            let grass_type = range.gen_range(0..4);
-
-            blocks.push((x_buffer, y_buffer, grass_type));
+            commands.spawn(SpriteBundle {
+                transform: Transform::from_translation(Vec3::new(
+                    block.0 as f32,
+                    block.1 as f32,
+                    0.0,
+                )),
+                material: materials.add(material.into()),
+                ..Default::default()
+            });
         }
-    }
 
-    for block in blocks {
-        let material: Handle<Texture>;
-
-        if block.2 == 1 {
-            material = grass002.clone();
-        } else {
-            material = grass001.clone();
-        }
-
-        commands.spawn(SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(block.0 as f32, block.1 as f32, 0.0)),
-            material: materials.add(material.into()),
-            ..Default::default()
-        });
+        store.updating = false;
     }
 }
 
@@ -143,10 +197,35 @@ fn player_setup(
 
 fn animate_sprite_system(
     time: Res<Time>,
+    mut store: ResMut<Store>,
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
 ) {
+    let store_start_pow = store.start.pow(2);
+    let store_end_pow = store.end.pow(2);
+
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
         timer.tick(time.delta_seconds_f64() as f32);
+
+        println!("{:?} --- {:?}", player.x, store_start_pow);
+
+        if (player.x - 16.0) as i32 == store_start_pow || (player.x + 16.0) as i32 == store_end_pow
+        {
+            store.updating = true;
+
+            let new_start = store.start - 2;
+            let new_end = store.end + 2;
+
+            store.update_blocks(new_start, new_end);
+        } else if (player.y - 16.0) as i32 == store_start_pow
+            || (player.y + 16.0) as i32 == store_end_pow
+        {
+            store.updating = true;
+
+            let new_start = store.start - 2;
+            let new_end = store.end + 2;
+
+            store.update_blocks(new_start, new_end);
+        }
 
         /*
             [
