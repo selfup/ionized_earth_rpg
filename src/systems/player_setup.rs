@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::super::entities::*;
+use crate::entities::*;
 
 const PLAYER_SPRITE_SHEET: &str = "player.png";
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::super::resources::*;
+use crate::resources::*;
 
 const MAIN_SCENE_END_SIZE: i32 = 4;
 const MAIN_SCENE_START_SIZE: i32 = -6;

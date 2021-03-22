@@ -3,9 +3,7 @@ use rand::Rng;
 
 use bevy::prelude::*;
 
-const BLOCK_SIZE: i32 = 16;
-const GRASS_001: &str = "grass-001.png";
-const GRASS_002: &str = "grass-002.png";
+use crate::constants::*;
 
 #[derive(Debug, Clone)]
 pub struct Store {

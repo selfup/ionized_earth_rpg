@@ -3,23 +3,17 @@ use bevy::{app::startup_stage, prelude::*};
 extern crate rand;
 use rand::Rng;
 
+mod constants;
 mod entities;
 mod resources;
 mod systems;
 mod utils;
 
+use constants::*;
 use entities::*;
 use resources::*;
 use systems::*;
 use utils::*;
-
-const BG_COLOR: f32 = 0.04;
-const BLOCK_SIZE: i32 = 16;
-
-const MAIN_SCENE_END_SIZE: i32 = 4;
-const MAIN_SCENE_START_SIZE: i32 = -6;
-
-const BUILDING_BLOCK_001: &str = "building-block-001.png";
 
 fn main() {
     App::build()
@@ -125,13 +119,13 @@ fn player_movement(
     for (mut transform, _handle_texture_atlas, mut player) in query.iter_mut() {
         let normalized_input_dir = (transform.rotation * input_dir.0).normalize();
 
-        let mut velocity = 25.0;
+        let mut velocity = NORMAL_VELOCITY;
 
         let x_dir = normalized_input_dir[0];
         let y_dir = normalized_input_dir[1];
 
         if input_dir.1 == "run" {
-            velocity = 50.0;
+            velocity = RUNNING_VELOCITY;
         }
 
         if x_dir == -1.0 {

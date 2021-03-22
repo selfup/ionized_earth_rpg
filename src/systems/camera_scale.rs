@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use super::super::entities::*;
+use crate::entities::*;
 
-const MAIN_CAMERA_SCALE: f32 = 0.2;
+use crate::constants::MAIN_CAMERA_SCALE;
 
 pub fn camera_scale(mut query: Query<(&mut Transform, &mut CameraMatcher)>) {
     for (mut transform, _camera) in query.iter_mut() {

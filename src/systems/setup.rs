@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::super::resources::*;
+use crate::resources::*;
 
 pub fn setup(
     commands: &mut Commands,

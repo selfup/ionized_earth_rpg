@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::super::entities::*;
+use crate::entities::*;
 
 pub fn camera_setup(commands: &mut Commands) {
     commands
