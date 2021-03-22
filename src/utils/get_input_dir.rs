@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-pub fn util(keyboard_input: Res<Input<KeyCode>>) -> (Vec3, &'static str) {
+pub fn get_input_dir(keyboard_input: Res<Input<KeyCode>>) -> (Vec3, &'static str) {
     let mut modifier = "";
     let mut input_dir = Vec3::default();
 

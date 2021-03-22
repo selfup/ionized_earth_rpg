@@ -8,7 +8,7 @@ const GRASS_001: &str = "grass-001.png";
 const GRASS_002: &str = "grass-002.png";
 
 #[derive(Debug, Clone)]
-pub struct Resource {
+pub struct Store {
     pub start: i32,
     pub end: i32,
     pub grass_001: Handle<Texture>,
@@ -17,7 +17,7 @@ pub struct Resource {
     pub updating: bool,
 }
 
-impl Resource {
+impl Store {
     pub fn new(start: i32, end: i32, asset_server: Res<AssetServer>) -> Self {
         let grass_001: Handle<Texture> = asset_server.load(GRASS_001);
         let grass_002: Handle<Texture> = asset_server.load(GRASS_002);

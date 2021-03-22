@@ -1,1 +1,3 @@
-pub mod store;
+mod store;
+
+pub use store::Store;

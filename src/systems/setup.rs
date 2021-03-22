@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 
-pub fn system(
+use super::super::resources::*;
+
+pub fn setup(
     commands: &mut Commands,
-    mut store: ResMut<super::super::resources::store::Resource>,
+    mut store: ResMut<Store>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if store.updating {

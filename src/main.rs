@@ -24,13 +24,13 @@ const BUILDING_BLOCK_001: &str = "building-block-001.png";
 fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
-        .add_startup_system_to_stage(startup_stage::PRE_STARTUP, init_state::system.system())
-        .add_startup_system(camera_setup::system.system())
-        .add_system(setup::system.system())
+        .add_startup_system_to_stage(startup_stage::PRE_STARTUP, init_state.system())
+        .add_startup_system(camera_setup.system())
+        .add_system(setup.system())
         .add_startup_system(add_random_building_blocks.system())
-        .add_startup_system(player_setup::system.system())
-        .add_system(camera_scale::system.system())
-        .add_system(camera_movement::system.system())
+        .add_startup_system(player_setup.system())
+        .add_system(camera_scale.system())
+        .add_system(camera_movement.system())
         .add_system(animate_sprite_system.system())
         .add_system(player_movement.system())
         .add_resource(ClearColor(Color::rgb(BG_COLOR, BG_COLOR, BG_COLOR)))
@@ -39,8 +39,8 @@ fn main() {
 
 fn animate_sprite_system(
     time: Res<Time>,
-    mut store: ResMut<store::Resource>,
-    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut player::Entity)>,
+    mut store: ResMut<Store>,
+    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
 ) {
     let store_start_pow = store.start.pow(2);
     let store_end_pow = store.end.pow(2);
@@ -118,9 +118,9 @@ fn animate_sprite_system(
 fn player_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Handle<TextureAtlas>, &mut player::Entity)>,
+    mut query: Query<(&mut Transform, &Handle<TextureAtlas>, &mut Player)>,
 ) {
-    let input_dir = get_input_dir::util(keyboard_input);
+    let input_dir = get_input_dir(keyboard_input);
 
     for (mut transform, _handle_texture_atlas, mut player) in query.iter_mut() {
         let normalized_input_dir = (transform.rotation * input_dir.0).normalize();

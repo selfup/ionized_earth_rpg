@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
-pub fn system(commands: &mut Commands) {
+use super::super::entities::*;
+
+pub fn camera_setup(commands: &mut Commands) {
     commands
         .spawn(Camera2dBundle::default())
-        .with(super::super::entities::camera_matcher::CameraMatcher());
+        .with(CameraMatcher());
 }

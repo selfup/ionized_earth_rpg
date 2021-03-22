@@ -1,17 +1,15 @@
 use bevy::prelude::*;
 
-use super::super::utils;
+use super::super::entities::*;
+use super::super::utils::*;
 
-pub fn system(
+pub fn camera_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(
-        &mut Transform,
-        &mut super::super::entities::camera_matcher::CameraMatcher,
-    )>,
+    mut query: Query<(&mut Transform, &mut CameraMatcher)>,
 ) {
     let mut velocity = 25.0;
-    let got_input_dir = utils::get_input_dir::util(keyboard_input);
+    let got_input_dir = get_input_dir(keyboard_input);
     let input_dir = got_input_dir.0;
 
     if got_input_dir.1 == "run" {

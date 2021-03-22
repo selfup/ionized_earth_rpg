@@ -1,5 +1,5 @@
 #[derive(Debug, Copy, Clone)]
-pub struct Entity {
+pub struct Player {
     pub x: f32,
     pub y: f32,
     pub z: f32,
@@ -14,7 +14,7 @@ pub struct Entity {
     pub animation_index: u32,
 }
 
-impl Entity {
+impl Player {
     pub fn new() -> Self {
         Self {
             x: 0.0,
