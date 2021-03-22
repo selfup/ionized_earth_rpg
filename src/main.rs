@@ -36,30 +36,8 @@ fn animate_sprite_system(
     mut store: ResMut<Store>,
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
 ) {
-    let store_start_pow = store.start.pow(2);
-    let store_end_pow = store.end.pow(2);
-
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
         timer.tick(time.delta_seconds_f64() as f32);
-
-        if (player.x - 16.0) as i32 == store_start_pow || (player.x + 16.0) as i32 == store_end_pow
-        {
-            store.updating = true;
-
-            let new_start = store.start - 2;
-            let new_end = store.end + 2;
-
-            store.update_blocks(new_start, new_end);
-        } else if (player.y - 16.0) as i32 == store_start_pow
-            || (player.y + 16.0) as i32 == store_end_pow
-        {
-            store.updating = true;
-
-            let new_start = store.start - 2;
-            let new_end = store.end + 2;
-
-            store.update_blocks(new_start, new_end);
-        }
 
         /*
             [
@@ -186,7 +164,7 @@ fn add_random_building_blocks(
                 transform: Transform::from_translation(Vec3::new(
                     building_block.0 as f32,
                     building_block.1 as f32,
-                    0.0,
+                    1.0,
                 )),
                 material: materials.add(material.into()),
                 ..Default::default()

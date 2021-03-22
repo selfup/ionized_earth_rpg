@@ -32,6 +32,7 @@ impl Store {
         }
     }
 
+    #[warn(dead_code)]
     pub fn update_blocks(&mut self, start: i32, end: i32) {
         self.blocks = create_blocks(self.start, self.end).0;
 
@@ -51,7 +52,7 @@ pub fn create_blocks(start: i32, end: i32) -> (Vec<(i32, i32, i8)>, (i32, i32)) 
 
             let mut range = rand::thread_rng();
 
-            let grass_type = range.gen_range(0..16);
+            let grass_type = range.gen_range(0..2);
 
             blocks.push((x_buffer, y_buffer, grass_type));
         }
