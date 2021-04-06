@@ -21,6 +21,6 @@ fn main() {
         .add_system(camera_movement.system())
         .add_system(animate_player.system())
         .add_system(player_movement.system())
-        .add_resource(ClearColor(Color::rgb(BG_COLOR, BG_COLOR, BG_COLOR)))
+        .insert_resource(ClearColor(Color::rgb(BG_COLOR, BG_COLOR, BG_COLOR)))
         .run();
 }
