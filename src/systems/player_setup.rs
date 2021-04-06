@@ -5,7 +5,7 @@ use crate::entities::*;
 const PLAYER_SPRITE_SHEET: &str = "player.png";
 
 pub fn player_setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {

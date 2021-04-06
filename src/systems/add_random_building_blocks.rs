@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use crate::constants::*;
 
 pub fn add_random_building_blocks(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {

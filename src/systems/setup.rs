@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::resources::*;
 
 pub fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut store: ResMut<Store>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
