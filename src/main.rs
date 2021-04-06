@@ -1,4 +1,4 @@
-use bevy::{app::startup_stage, prelude::*};
+use bevy::prelude::*;
 
 mod constants;
 mod entities;
@@ -12,7 +12,7 @@ use systems::*;
 fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
-        .add_startup_system_to_stage(startup_stage::PRE_STARTUP, init_state.system())
+        .add_startup_system_to_stage(StartupStage::PreStartup, init_state.system())
         .add_startup_system(camera_setup.system())
         .add_system(setup.system())
         .add_startup_system(add_random_building_blocks.system())

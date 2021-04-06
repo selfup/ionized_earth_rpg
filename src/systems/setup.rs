@@ -17,7 +17,7 @@ pub fn setup(
                 material = store.grass_002.clone();
             }
 
-            commands.spawn(SpriteBundle {
+            commands.spawn_bundle(SpriteBundle {
                 transform: Transform::from_translation(Vec3::new(
                     block.0 as f32,
                     block.1 as f32,
