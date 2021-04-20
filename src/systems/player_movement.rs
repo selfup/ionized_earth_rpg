@@ -23,24 +23,25 @@ pub fn player_movement(
             velocity = RUNNING_VELOCITY;
         }
 
+        player.set_all_to_false();
+
         if x_dir == -1.0 {
             player.x -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
-            player.set_all_to_false();
+
             player.left = true;
         } else if x_dir == 1.0 {
             player.x += (1.0 * time.delta_seconds_f64() * velocity) as f32;
-            player.set_all_to_false();
+
             player.right = true;
         } else if y_dir == -1.0 {
             player.y -= (1.0 * time.delta_seconds_f64() * velocity) as f32;
-            player.set_all_to_false();
+
             player.down = true;
         } else if y_dir == 1.0 {
             player.y += (1.0 * time.delta_seconds_f64() * velocity) as f32;
-            player.set_all_to_false();
+
             player.up = true;
         } else {
-            player.set_all_to_false();
             player.idle = true;
         }
 
