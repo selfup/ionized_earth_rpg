@@ -7,7 +7,7 @@ pub fn animate_player(
     mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
 ) {
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
-        timer.tick(time.delta_seconds_f64() as f32);
+        timer.tick(time.delta());
 
         /*
             [

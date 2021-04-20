@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use crate::constants::*;
 
 pub fn add_random_building_blocks(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
@@ -34,7 +34,7 @@ pub fn add_random_building_blocks(
         if building_block.2 == 1 {
             material = building_block_001.clone();
 
-            commands.spawn(SpriteBundle {
+            commands.spawn_bundle(SpriteBundle {
                 transform: Transform::from_translation(Vec3::new(
                     building_block.0 as f32,
                     building_block.1 as f32,

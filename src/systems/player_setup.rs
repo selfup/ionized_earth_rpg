@@ -5,7 +5,7 @@ use crate::entities::*;
 const PLAYER_SPRITE_SHEET: &str = "player.png";
 
 pub fn player_setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -15,13 +15,13 @@ pub fn player_setup(
 
     let player = Player::new();
 
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands
-        .spawn(Camera2dBundle::default())
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform: Transform::from_scale(Vec3::splat(1.0)),
             ..Default::default()
         })
-        .with(Timer::from_seconds(0.1, true))
-        .with(player);
+        .insert(Timer::from_seconds(0.1, true))
+        .insert(player);
 }
