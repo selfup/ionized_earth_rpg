@@ -9,16 +9,16 @@ use crate::constants::*;
 pub struct Store {
     pub start: i32,
     pub end: i32,
-    pub grass_001: Handle<Texture>,
-    pub grass_002: Handle<Texture>,
+    pub grass_001: Handle<Image>,
+    pub grass_002: Handle<Image>,
     pub blocks: Vec<(i32, i32, i8)>,
     pub updating: bool,
 }
 
 impl Store {
     pub fn new(start: i32, end: i32, asset_server: Res<AssetServer>) -> Self {
-        let grass_001: Handle<Texture> = asset_server.load(GRASS_001);
-        let grass_002: Handle<Texture> = asset_server.load(GRASS_002);
+        let grass_001: Handle<Image> = asset_server.load(GRASS_001);
+        let grass_002: Handle<Image> = asset_server.load(GRASS_002);
 
         let blocks = create_blocks(start, end);
 
@@ -32,7 +32,7 @@ impl Store {
         }
     }
 
-    #[warn(dead_code)]
+    #[allow(dead_code)]
     pub fn update_blocks(&mut self, start: i32, end: i32) {
         self.blocks = create_blocks(self.start, self.end).0;
 

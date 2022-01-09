@@ -52,7 +52,7 @@ pub fn animate_player(
         }
 
         if timer.finished() {
-            sprite.index = player.animation_index;
+            sprite.index = player.animation_index as usize;
         }
     }
 }

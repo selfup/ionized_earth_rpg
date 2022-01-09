@@ -5,12 +5,8 @@ use bevy::prelude::*;
 
 use crate::constants::*;
 
-pub fn add_random_building_blocks(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-    let building_block_001: Handle<Texture> = asset_server.load(BUILDING_BLOCK_001);
+pub fn add_random_building_blocks(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let building_block_001: Handle<Image> = asset_server.load(BUILDING_BLOCK_001);
 
     let mut building_blocks: Vec<(i32, i32, i8)> = vec![];
 
@@ -29,7 +25,7 @@ pub fn add_random_building_blocks(
     }
 
     for building_block in building_blocks {
-        let material: Handle<Texture>;
+        let material: Handle<Image>;
 
         if building_block.2 == 1 {
             material = building_block_001.clone();
@@ -40,7 +36,7 @@ pub fn add_random_building_blocks(
                     building_block.1 as f32,
                     1.0,
                 )),
-                material: materials.add(material.into()),
+                texture: material,
                 ..Default::default()
             });
         }
