@@ -21,7 +21,7 @@ impl Player {
         Self {
             x: 0.0,
             y: 0.0,
-            z: 1.0,
+            z: 1.1,
 
             idle: true,
             left: false,

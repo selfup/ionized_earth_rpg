@@ -7,7 +7,7 @@ use crate::utils::*;
 pub fn player_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Handle<Image>, &mut Player)>,
+    mut query: Query<(&mut Transform, &Handle<TextureAtlas>, &mut Player)>,
 ) {
     let input_dir = get_input_dir(keyboard_input);
 

@@ -1,3 +1,4 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 
 mod constants;
@@ -12,6 +13,8 @@ use systems::*;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_startup_system_to_stage(StartupStage::PreStartup, init_state)
         .add_startup_system(camera_setup)
         .add_system(setup)
