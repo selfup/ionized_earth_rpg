@@ -2,14 +2,10 @@ use bevy::prelude::*;
 
 use crate::resources::*;
 
-pub fn setup(
-    mut commands: Commands,
-    mut store: ResMut<Store>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+pub fn setup(mut commands: Commands, mut store: ResMut<Store>) {
     if store.updating {
         for block in &store.blocks {
-            let material: Handle<Texture>;
+            let material: Handle<Image>;
 
             if block.2 == 1 {
                 material = store.grass_001.clone();
@@ -23,7 +19,7 @@ pub fn setup(
                     block.1 as f32,
                     0.0,
                 )),
-                material: materials.add(material.into()),
+                texture: material,
                 ..Default::default()
             });
         }

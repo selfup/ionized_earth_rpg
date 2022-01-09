@@ -2,8 +2,8 @@
 name = "ionized_earth_rpg"
 version = "0.1.0"
 authors = ["selfup <boudinot.regis@yahoo.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 rand = "0.8"
-bevy = "0.5"
+bevy = "0.6"
