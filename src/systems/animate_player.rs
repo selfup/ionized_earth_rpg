@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 use crate::entities::*;
@@ -12,12 +14,11 @@ use crate::entities::*;
     ]
 */
 
-pub fn animate_player(
-    time: Res<Time>,
-    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
-) {
+pub fn animate_player(mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>) {
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
-        timer.tick(time.delta());
+        let duration: Duration = Duration::from_millis(16.6 as u64);
+
+        timer.tick(duration);
 
         if player.idle {
             animation_index_bounds_calc(&mut player, 4, 0);
@@ -32,12 +33,12 @@ pub fn animate_player(
         }
 
         if timer.finished() {
-            sprite.index = player.animation_index as usize;
+            sprite.index = player.animation_index;
         }
     }
 }
 
-fn animation_index_bounds_calc(player: &mut Player, upper_bound: u32, lower_bound: u32) {
+fn animation_index_bounds_calc(player: &mut Player, upper_bound: usize, lower_bound: usize) {
     if player.animation_index < upper_bound {
         player.animation_index += 1;
     } else {

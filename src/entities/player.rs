@@ -13,7 +13,7 @@ pub struct Player {
     pub up: bool,
     pub down: bool,
 
-    pub animation_index: u32,
+    pub animation_index: usize,
 }
 
 impl Player {
