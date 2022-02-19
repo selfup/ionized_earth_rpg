@@ -11,6 +11,8 @@ use constants::*;
 use systems::*;
 
 fn main() {
+    let color: Color = Color::rgb(BG_COLOR, BG_COLOR, BG_COLOR);
+
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(LogDiagnosticsPlugin::default())
@@ -24,6 +26,6 @@ fn main() {
         .add_system(camera_movement)
         .add_system(animate_player)
         .add_system(player_movement)
-        .insert_resource(ClearColor(Color::rgb(BG_COLOR, BG_COLOR, BG_COLOR)))
+        .insert_resource(ClearColor(color))
         .run();
 }
