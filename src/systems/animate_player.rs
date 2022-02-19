@@ -14,9 +14,12 @@ use crate::entities::*;
     ]
 */
 
-pub fn animate_player(mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>) {
+pub fn animate_player(
+    time: Res<Time>,
+    mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mut Player)>,
+) {
     for (mut timer, mut sprite, mut player) in query.iter_mut() {
-        let duration: Duration = Duration::from_millis(16.6 as u64);
+        let duration: Duration = time.delta();
 
         timer.tick(duration);
 
@@ -39,7 +42,9 @@ pub fn animate_player(mut query: Query<(&mut Timer, &mut TextureAtlasSprite, &mu
 }
 
 fn animation_index_bounds_calc(player: &mut Player, upper_bound: usize, lower_bound: usize) {
-    if player.animation_index < upper_bound {
+    let idx: usize = player.animation_index;
+
+    if idx < upper_bound && idx >= lower_bound {
         player.animation_index += 1;
     } else {
         player.animation_index = lower_bound;
