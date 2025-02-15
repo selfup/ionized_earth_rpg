@@ -30,15 +30,12 @@ pub fn add_random_building_blocks(mut commands: Commands, asset_server: Res<Asse
         if building_block.2 == 1 {
             material = building_block_001.clone();
 
-            commands.spawn_bundle(SpriteBundle {
-                transform: Transform::from_translation(Vec3::new(
-                    building_block.0 as f32,
-                    building_block.1 as f32,
-                    1.0,
-                )),
-                texture: material,
-                ..Default::default()
-            });
+            let sprite = Sprite::from_image(material);
+
+            commands.spawn((
+                sprite,
+                Transform::from_xyz(building_block.0 as f32, building_block.1 as f32, 0.0),
+            ));
         }
     }
 }

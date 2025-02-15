@@ -6,7 +6,7 @@ use crate::utils::*;
 
 pub fn camera_movement(
     time: Res<Time>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(&mut Transform, &mut CameraMatcher)>,
 ) {
     let mut velocity = NORMAL_VELOCITY;
@@ -21,7 +21,7 @@ pub fn camera_movement(
         for (mut transform, _camera) in query.iter_mut() {
             let input_dir = (transform.rotation * input_dir).normalize();
 
-            transform.translation += input_dir * (time.delta_seconds_f64() * velocity) as f32;
+            transform.translation += input_dir * (time.delta_secs_f64() * velocity) as f32;
         }
     }
 }

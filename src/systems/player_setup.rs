@@ -26,7 +26,7 @@ pub fn player_setup(
     let texture_atlas = TextureAtlasLayout::from_grid(UVec2::splat(16), 5, 5, None, None);
     let texture_atlas_layout = texture_atlases.add(texture_atlas);
 
-    commands.spawn(Camera2d);
+    // commands.spawn(Camera2d);
     commands
         .spawn((
             Sprite::from_atlas_image(

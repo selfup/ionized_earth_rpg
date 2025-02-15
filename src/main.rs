@@ -10,22 +10,40 @@ mod utils;
 use constants::*;
 use systems::*;
 
+#[derive(Component)]
+struct FuseTime {
+    /// track when the bomb should explode (non-repeating timer)
+    timer: Timer,
+}
+
 fn main() {
-    let color: Color = Color::rgb(BG_COLOR, BG_COLOR, BG_COLOR);
+    let color: Color = Color::srgb(BG_COLOR, BG_COLOR, BG_COLOR);
 
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_plugin(LogDiagnosticsPlugin::default())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_startup_system_to_stage(StartupStage::PreStartup, init_state)
-        .add_startup_system(camera_setup)
-        .add_system(setup)
-        .add_startup_system(add_random_building_blocks)
-        .add_startup_system(player_setup)
-        .add_system(camera_scale)
-        .add_system(camera_movement)
-        .add_system(animate_player)
-        .add_system(player_movement)
+        .add_plugins((
+            DefaultPlugins,
+            LogDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
+        ))
+        .add_systems(PreStartup, init_state)
+        .add_systems(
+            Startup,
+            (
+                camera_setup,
+                setup,
+                add_random_building_blocks,
+                player_setup,
+            ),
+        )
+        .add_systems(
+            Update,
+            (
+                camera_scale,
+                camera_movement,
+                animate_player,
+                player_movement,
+            ),
+        )
         .insert_resource(ClearColor(color))
         .run();
 }
