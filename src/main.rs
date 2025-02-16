@@ -10,9 +10,9 @@ mod utils;
 use constants::*;
 use systems::*;
 
-#[derive(Component)]
-struct FuseTime {
-    /// track when the bomb should explode (non-repeating timer)
+#[derive(Component, Deref, DerefMut)]
+
+struct GameTime {
     timer: Timer,
 }
 
@@ -21,7 +21,8 @@ fn main() {
 
     App::new()
         .add_plugins((
-            DefaultPlugins,
+            // ImagePlugin::default_nearest() is needed for pixel art
+            DefaultPlugins.set(ImagePlugin::default_nearest()),
             LogDiagnosticsPlugin::default(),
             FrameTimeDiagnosticsPlugin::default(),
         ))

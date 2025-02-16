@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{entities::*, FuseTime};
+use crate::{entities::*, GameTime};
 
 /*
     [
@@ -16,12 +16,12 @@ use crate::{entities::*, FuseTime};
 
 pub fn animate_player(
     time: Res<Time>,
-    mut query: Query<(&mut FuseTime, &mut Sprite, &mut Player)>,
+    mut query: Query<(&mut GameTime, &mut Sprite, &mut Player)>,
 ) {
-    for (mut timer, mut sprite, mut player) in query.iter_mut() {
+    for (mut game_time, mut sprite, mut player) in &mut query {
         let duration: Duration = time.delta();
 
-        timer.timer.tick(duration);
+        game_time.timer.tick(duration);
 
         if player.idle {
             animation_index_bounds_calc(&mut player, 4, 0);
@@ -35,8 +35,10 @@ pub fn animate_player(
             animation_index_bounds_calc(&mut player, 24, 20);
         }
 
-        if timer.timer.finished() {
-            sprite.texture_atlas.as_mut().unwrap().index = player.animation_index;
+        if game_time.timer.finished() {
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = player.animation_index;
+            }
         }
     }
 }
