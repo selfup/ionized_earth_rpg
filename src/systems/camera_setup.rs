@@ -4,6 +4,6 @@ use crate::entities::*;
 
 pub fn camera_setup(mut commands: Commands) {
     commands
-        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .spawn((Camera2d, OrthographicProjection::default_2d()))
         .insert(CameraMatcher());
 }

@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use crate::constants::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Resource)]
 pub struct Store {
     pub start: i32,
     pub end: i32,

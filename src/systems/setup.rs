@@ -13,15 +13,12 @@ pub fn setup(mut commands: Commands, mut store: ResMut<Store>) {
                 material = store.grass_002.clone();
             }
 
-            commands.spawn_bundle(SpriteBundle {
-                transform: Transform::from_translation(Vec3::new(
-                    block.0 as f32,
-                    block.1 as f32,
-                    0.0,
-                )),
-                texture: material,
-                ..Default::default()
-            });
+            let sprite = Sprite::from_image(material);
+
+            commands.spawn((
+                sprite,
+                Transform::from_xyz(block.0 as f32, block.1 as f32, 0.0),
+            ));
         }
 
         store.updating = false;
