@@ -11,7 +11,6 @@ use constants::*;
 use systems::*;
 
 #[derive(Component, Deref, DerefMut)]
-
 struct GameTime {
     timer: Timer,
 }
