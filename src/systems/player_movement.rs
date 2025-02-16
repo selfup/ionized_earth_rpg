@@ -25,20 +25,22 @@ pub fn player_movement(
 
         player.set_all_to_false();
 
+        let delta_time = (1.0 * time.delta_secs_f64() * velocity) as f32;
+
         if x_dir == -1.0 {
-            player.x -= (1.0 * time.delta_secs_f64() * velocity) as f32;
+            player.x -= delta_time;
 
             player.left = true;
         } else if x_dir == 1.0 {
-            player.x += (1.0 * time.delta_secs_f64() * velocity) as f32;
+            player.x += delta_time;
 
             player.right = true;
         } else if y_dir == -1.0 {
-            player.y -= (1.0 * time.delta_secs_f64() * velocity) as f32;
+            player.y -= delta_time;
 
             player.down = true;
         } else if y_dir == 1.0 {
-            player.y += (1.0 * time.delta_secs_f64() * velocity) as f32;
+            player.y += delta_time;
 
             player.up = true;
         } else {
